@@ -6,6 +6,7 @@ import {
   uuid,
   boolean,
 } from 'drizzle-orm/pg-core';
+import 'dotenv/config';
 
 export const userRoleEnum = pgEnum('user_role', ['user', 'admin']);
 
