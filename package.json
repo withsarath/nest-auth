@@ -30,7 +30,7 @@
     "@nestjs/core": "^11.0.1",
     "@nestjs/jwt": "^12.0.1",
     "@nestjs/platform-express": "^11.0.1",
-    "@nestjs/swagger": "^12.0.1",
+    "@nestjs/swagger": "^11.4.7",
     "@nestjs/throttler": "^6.5.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
@@ -40,7 +40,6 @@
     "resend": "^6.26.0",
     "rxjs": "^7.8.1",
     "swagger-ui-express": "^5.0.1"
-
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
@@ -87,5 +86,6 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
-  }
+  },
+  "packageManager": "pnpm@10.33.4+sha512.1c67b3b359b2d408119ba1ed289f34b8fc3c6873412bec6fd264fbdc82489e510fcbecb9ce9d22dae7f3b76269d8441046014bdca53b9979cd7a561ad631b800"
 }
