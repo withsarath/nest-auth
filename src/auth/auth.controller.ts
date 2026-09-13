@@ -89,6 +89,19 @@ export class AuthController {
   ) {
     return this.authService.logout(user.id, res);
   }
+   // GET /api/auth/me
+  @Get('me')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get current authenticated user' })
+  me(@CurrentUser() user: User) {
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      isVerified: user.isVerified,
+    };
+  }
   @Throttle({ default: { ttl: 60000, limit: 3 } })
   @Public()
   @Post('forgot-password')

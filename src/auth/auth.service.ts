@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
 import { UsersService } from '../users/users.service';
 import { EmailService } from './email.service';
@@ -24,6 +24,7 @@ export class AuthService {
     private emailService: EmailService,
   ) {}
 
+  // Register new user
   async register(dto: RegisterDto) {
     const existingUser = await this.usersService.findByEmail(dto.email);
 
@@ -54,6 +55,7 @@ export class AuthService {
     };
   }
 
+   // VerifyEmail
   async verifyEmail(token: string, res: Response) {
     const user = await this.usersService.findByVerificationToken(token);
 
@@ -92,6 +94,7 @@ export class AuthService {
     };
   }
 
+  // Login
   async login(dto: LoginDto, res: Response) {
     const user = await this.usersService.findByEmail(dto.email);
 
@@ -126,6 +129,7 @@ export class AuthService {
     };
   }
 
+  // Refresh token
   async refresh(refreshToken: string, res: Response) {
     if (!refreshToken) {
       throw new UnauthorizedException('No refresh token provided');
@@ -164,6 +168,7 @@ export class AuthService {
     };
   }
 
+  // Logout
   async logout(userId: string, res: Response) {
     await this.usersService.update(userId, { refreshTokenHash: null });
 
@@ -171,6 +176,7 @@ export class AuthService {
     return { message: 'Logged out successfully' };
   }
 
+  // Forgot password
   async forgotPassword(email: string) {
     const user = await this.usersService.findByEmail(email);
 
@@ -197,6 +203,7 @@ export class AuthService {
     };
   }
 
+  // ResetPassword
   async resetPassword(token: string, newPassword: string) {
     const user = await this.usersService.findByResetToken(token);
 
@@ -223,6 +230,7 @@ export class AuthService {
     };
   }
 
+  // Gernerate Token
   private async generateTokens(user: User) {
     const payload = { sub: user.id, email: user.email, role: user.role };
 
@@ -242,11 +250,13 @@ export class AuthService {
     };
   }
 
+  // Save Refresh Token
   private async saveRefreshToken(userId: string, refreshToken: string) {
     const refreshTokenHash = await bcrypt.hash(refreshToken, 10);
     await this.usersService.update(userId, { refreshTokenHash });
   }
 
+  // Set Refresh Token Cookie
   private setRefreshTokenCookie(res: Response, refreshToken: string) {
     res.cookie('refresh_token', refreshToken, {
       httpOnly: true,
