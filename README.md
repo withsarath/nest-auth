@@ -230,7 +230,7 @@ Make sure you have installed:
 ### Installation
 
 ```bash
-git clone https://github.com/withsarath/nest-auth.git
+git clone https://github.com/withsarath/nest-auth-api.git
 cd nest-auth
 pnpm install
 ```
