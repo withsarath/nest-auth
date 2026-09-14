@@ -1,98 +1,321 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# NestAuth — Authentication & RBAC API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A modular authentication and task-management REST API built with **NestJS** and **TypeScript**. The project demonstrates secure authentication, JWT-based authorization, role-based access control, email verification, password recovery, and user-owned task management.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Features
 
-## Description
+### Authentication
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+* User registration and login
+* Bcrypt password hashing
+* Email verification through transactional email
+* Verification-token expiration
+* Forgot-password and password-reset flows
+* JWT access tokens
+* Refresh tokens with database-backed storage
+* Refresh-token rotation
+* HttpOnly refresh-token cookies
+* Logout and refresh-token invalidation
+* Protected authentication endpoints
 
-## Project setup
+### Authorization
 
-```bash
-$ pnpm install
+* Global JWT authentication guard
+* Role-based access control using `user` and `admin` roles
+* Custom decorators:
+
+  * `@Public()`
+  * `@CurrentUser()`
+  * `@Roles()`
+* Admin-only user-management endpoints
+* User ownership checks for task operations
+
+### Task Management
+
+Authenticated users can:
+
+* Create tasks
+* View their own tasks
+* Update their own tasks
+* Delete their own tasks
+
+Task operations are restricted by the authenticated user's ID to prevent users from accessing or modifying other users' tasks.
+
+### API and Developer Experience
+
+* PostgreSQL database
+* Neon Serverless PostgreSQL
+* Drizzle ORM
+* Type-safe database queries
+* DTO-based request validation
+* `class-validator` integration
+* Global validation pipe
+* Global HTTP exception filter
+* Request throttling for sensitive endpoints
+* Swagger/OpenAPI documentation
+
+## Tech Stack
+
+* **Backend:** NestJS, TypeScript
+* **Database:** PostgreSQL, Neon
+* **ORM:** Drizzle ORM
+* **Authentication:** JWT, bcrypt
+* **Email:** Resend
+* **Validation:** class-validator, class-transformer
+* **API Documentation:** Swagger/OpenAPI
+* **Package Manager:** pnpm
+
+## Project Structure
+
+```text
+src/
+├── admin/
+│   ├── admin.controller.ts
+│   └── admin.module.ts
+│
+├── auth/
+│   ├── dto/
+│   ├── auth.controller.ts
+│   ├── auth.module.ts
+│   ├── auth.service.ts
+│   └── email.service.ts
+│
+├── common/
+│   ├── decorators/
+│   ├── filters/
+│   └── guards/
+│
+├── db/
+│   ├── index.ts
+│   └── schema.ts
+│
+├── tasks/
+│   ├── dto/
+│   ├── tasks.controller.ts
+│   ├── tasks.module.ts
+│   └── tasks.service.ts
+│
+├── users/
+│   ├── users.module.ts
+│   └── users.service.ts
+│
+├── app.module.ts
+└── main.ts
 ```
 
-## Compile and run the project
+## Application Architecture
 
-```bash
-# development
-$ pnpm run start
-
-# watch mode
-$ pnpm run start:dev
-
-# production mode
-$ pnpm run start:prod
+```text
+Client
+  │
+  ▼
+NestJS Controllers
+  │
+  ▼
+Validation Pipes
+  │
+  ▼
+Authentication and Authorization Guards
+  │
+  ▼
+Feature Services
+  │
+  ▼
+Drizzle ORM
+  │
+  ▼
+Neon PostgreSQL
 ```
 
-## Run tests
+The application is organized into feature modules so that authentication, users, tasks, and administration remain separated and maintainable.
 
-```bash
-# unit tests
-$ pnpm run test
+## Authentication Flow
 
-# e2e tests
-$ pnpm run test:e2e
+### Registration
 
-# test coverage
-$ pnpm run test:cov
+```text
+Client submits registration details
+        ↓
+Validate request DTO
+        ↓
+Check whether email already exists
+        ↓
+Hash password with bcrypt
+        ↓
+Create verification token
+        ↓
+Save user in PostgreSQL
+        ↓
+Send verification email
 ```
 
-## Deployment
+### Email Verification
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
+```text
+User opens verification link
+        ↓
+Validate verification token
+        ↓
+Check token expiration
+        ↓
+Mark email as verified
+        ↓
+Clear verification token
+        ↓
+Generate access and refresh tokens
+        ↓
+Set refresh token in an HttpOnly cookie
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### Protected Request
 
-## Resources
+```text
+Client sends access token
+        ↓
+JwtAuthGuard extracts Bearer token
+        ↓
+Verify JWT signature and expiration
+        ↓
+Load user from database
+        ↓
+Attach user to request.user
+        ↓
+Allow controller execution
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+## API Endpoints
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+### Authentication
 
-## Support
+| Method | Endpoint                    | Description                    |
+| ------ | --------------------------- | ------------------------------ |
+| `POST` | `/api/auth/register`        | Register a new user            |
+| `GET`  | `/api/auth/verify-email`    | Verify a user's email          |
+| `POST` | `/api/auth/login`           | Log in with email and password |
+| `POST` | `/api/auth/refresh`         | Refresh access token           |
+| `POST` | `/api/auth/logout`          | Log out the current user       |
+| `GET`  | `/api/auth/me`              | Get the authenticated user     |
+| `POST` | `/api/auth/forgot-password` | Request a password-reset email |
+| `POST` | `/api/auth/reset-password`  | Reset a user's password        |
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+### Tasks
 
-## Stay in touch
+| Method   | Endpoint         | Description                  |
+| -------- | ---------------- | ---------------------------- |
+| `POST`   | `/api/tasks`     | Create a task                |
+| `GET`    | `/api/tasks`     | Get the current user's tasks |
+| `PATCH`  | `/api/tasks/:id` | Update an owned task         |
+| `DELETE` | `/api/tasks/:id` | Delete an owned task         |
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+### Admin
 
-## License
+| Method   | Endpoint               | Description                        |
+| -------- | ---------------------- | ---------------------------------- |
+| `GET`    | `/api/admin/users`     | Retrieve users as an administrator |
+| `DELETE` | `/api/admin/users/:id` | Delete a user as an administrator  |
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+> The exact request bodies and response schemas are available through the Swagger documentation.
+
+## Getting Started
+
+### Prerequisites
+
+Make sure you have installed:
+
+* Node.js
+* pnpm
+* A Neon PostgreSQL database
+* A Resend account and API key
+
+### Installation
+
+```bash
+git clone https://github.com/withsarath/nest-auth.git
+cd nest-auth
+pnpm install
+```
+
+### Environment Variables
+
+Create a `.env` file in the project root:
+
+```env
+DATABASE_URL=your_neon_database_url
+
+JWT_ACCESS_SECRET=your_access_token_secret
+JWT_REFRESH_SECRET=your_refresh_token_secret
+
+JWT_ACCESS_EXPIRES_IN=15m
+JWT_REFRESH_EXPIRES_IN=7d
+
+RESEND_API_KEY=your_resend_api_key
+
+APP_URL=http://localhost:3000
+PORT=3000
+NODE_ENV=development
+```
+
+### Database Commands
+
+```bash
+pnpm db:push
+```
+
+Push the current Drizzle schema to the database.
+
+```bash
+pnpm db:generate
+```
+
+Generate database migration files.
+
+```bash
+pnpm db:migrate
+```
+
+Apply generated migrations.
+
+```bash
+pnpm db:studio
+```
+
+Open Drizzle Studio to inspect and manage database records.
+
+### Run the Application
+
+Development mode:
+
+```bash
+pnpm start:dev
+```
+
+Production build:
+
+```bash
+pnpm build
+```
+
+Production mode:
+
+```bash
+pnpm start:prod
+```
+
+The API runs at:
+
+```text
+http://localhost:3000/api
+```
+
+Swagger documentation is available at:
+
+```text
+http://localhost:3000/api/docs
+```
+
+
+## Author
+
+**Sarath**
+
+* GitHub: [withsarath](https://github.com/withsarath)
